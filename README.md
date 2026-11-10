@@ -1,61 +1,91 @@
-# Wire-PID-KG: Wire-Native Process & Instrumentation Knowledge Graph Engine
+# Wire-PID-KG: Wire-Native P&ID to Process Knowledge Graph
 
 [![Engine: Wire--Native](https://img.shields.io/badge/Engine-Wire--Native-00e5ff.svg)](https://github.com/Amz34)
-[![Architecture: EGM](https://img.shields.io/badge/Architecture-EGM--Swarm-10b981.svg)](https://github.com/Amz34)
+[![Standard: ISA--5.1](https://img.shields.io/badge/Standard-ISA--5.1-f59e0b.svg)](https://github.com/Amz34)
+[![Storage: DuckDB](https://img.shields.io/badge/Store-DuckDB-FFF000.svg)](https://github.com/Amz34)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![ISA-5.1: Compliant](https://img.shields.io/badge/Standard-ISA--5.1-f59e0b.svg)](https://github.com/Amz34)
 
-An enterprise-grade, wire-native intelligence engine that transforms **Piping & Instrumentation Diagrams (P&IDs)** and Process Flow Diagrams (PFDs) into a queryable, connected process knowledge graph for autonomous LLM reasoning.
+An enterprise-grade, wire-native intelligence engine and agentic skill that turns Piping & Instrumentation Diagrams (P&IDs) and Process Flow Diagrams (PFDs)—both digital vector CAD and scanned drawings—into a structured, queryable process knowledge graph.
 
-Designed with **Elephant-Goldfish Multi-Agent Review**: deep-context extraction synthesized by an Elephant orchestrator, then stress-tested by zero-context Goldfish QA reviewers to eliminate hallucinations.
-
----
-
-## Capabilities & Architecture
-
-- **ISA-5.1 Decomposition**: Automatically parses tags (`FT`, `PT`, `FIC`, `TIC`, `XV`, etc.) into variables (Flow, Pressure, Temperature, Level) and functions (Transmitter, Controller, Alarm, Final Valve).
-- **Process Topology**: Full upstream and downstream tracking across vessels, pumps, reactors, and distillation columns.
-- **Embedded SQL & JSON Store**: Native relational tables (`equipment`, `instruments`, `valves`, `connections`) queryable with SQLite and DuckDB.
-- **Zero-Context Goldfish Swarm**: Validates graphs against floating nodes, unlinked loops, and flow mismatches.
-- **LLM Context Synthesis**: Generates ready-to-ingest markdown summaries for retrieval-augmented generation and reasoning.
+The graph captures:
+- **Process Flow:** Upstream and downstream connectivity across tanks, pumps, reactors, heat exchangers, distillation columns, and pipe segments.
+- **Measurement:** Transmitters, indicators, and sensors positioned accurately within process streams.
+- **Control Loops:** Complete loops traced from sensor element through controller to final actuator or drive, adhering to ISA-5.1 standards.
 
 ---
 
-## Quickstart
+## Architecture Overview
 
-### 1. Build Process Knowledge Graph
-```bash
-./skills/wire-pid-kg/scripts/cli.py build \
-  --plant "AONE-BioChemical-Unit-01" \
-  --outdir work/sample_plant
 ```
-
-Outputs:
-- `work/sample_plant/graph.json`: Full JSON representation.
-- `work/sample_plant/graph.db`: Queryable SQL database.
-- `work/sample_plant/summary.md`: LLM context layer.
-
-### 2. Analytical SQL Queries
-```bash
-# Query all equipment upstream or downstream
-./skills/wire-pid-kg/scripts/cli.py query \
-  --db work/sample_plant/graph.db \
-  --sql "SELECT id, name, equipment_type FROM equipment"
-```
-
-```bash
-# Query active instrumentation and control loops
-./skills/wire-pid-kg/scripts/cli.py query \
-  --db work/sample_plant/graph.db \
-  --sql "SELECT tag, measured_variable, function, loop_id FROM instruments"
+wire-pid-kg/
+├── .claude-plugin/
+│   └── plugin.json
+├── docs/
+│   └── how-it-works.svg
+├── skills/
+│   └── wire-pid-kg/
+│       ├── SKILL.md
+│       ├── references/
+│       │   ├── extraction_procedure.md
+│       │   ├── isa_5_1.md
+│       │   ├── ontology.md
+│       │   ├── symbol_guide.md
+│       │   └── schema/
+│       │       ├── extraction.schema.json
+│       │       └── graph.schema.json
+│       └── scripts/
+│           ├── requirements.txt
+│           ├── probe_pdf.py
+│           ├── render_pages.py
+│           ├── make_hints.py
+│           ├── build_kg.py
+│           ├── kg_query.py
+│           ├── export.py
+│           ├── eval_kg.py
+│           ├── crop.py
+│           └── pidkg/
+│               ├── build.py
+│               ├── isa.py
+│               ├── loops.py
+│               ├── models.py
+│               ├── ocr.py
+│               ├── ontology.py
+│               ├── pdf.py
+│               ├── qa.py
+│               ├── store.py
+│               └── summary.py
+└── tests/
+    ├── conftest.py
+    └── fixtures/
 ```
 
 ---
 
-## Running Automated Tests
+## Workflow Pipeline
+
+1. **Page Classification (`probe_pdf.py`)**: Identifies CAD vector text vs. raster scans and establishes extraction paths.
+2. **Page Rendering (`render_pages.py`)**: Generates high-resolution coordinate tiles for agent inspection.
+3. **Orientation & Hints (`make_hints.py`)**: Gathers OCR bounding box hints for tag validation.
+4. **Agent Inspection (`SKILL.md`)**: Inspects drawings and writes structured JSON extractions per sheet.
+5. **Graph Assembly (`build_kg.py`)**: Stitches line segments, connects off-page links, and assembles control loops.
+6. **QA Audit (`qa.py`)**: Validates against floating equipment, open loops, and unverified tags.
+7. **Analytical Querying (`kg_query.py`)**: Queries the embedded DuckDB store for upstream and downstream process tracing.
+
+---
+
+## Outputs
+
+- `graph.json`: Full validated JSON graph conforming to `graph.schema.json`.
+- `graph.duckdb`: Analytical SQL database for recursive graph searches.
+- `summary.md`: Clean Markdown context layer for LLM reasoning.
+- `qa_report.md`: Discrepancy report detailing unresolved tags or unlinked connectors.
+
+---
+
+## Automated Verification
 
 ```bash
-python3 -m unittest discover tests
+pytest
 ```
 
 ---
