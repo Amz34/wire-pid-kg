@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wire-pid-kg"
+version = "0.1.0"
+description = "Wire-Native P&ID to Knowledge Graph: Deep-context Elephant extraction with zero-context Goldfish review swarm and SQL/DuckDB graph querying"
+readme = "README.md"
+authors = [{ name = "Amz34", email = "aamir1zahran@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.0",
+    "duckdb>=0.9.0",
+    "pydantic>=2.0.0",
+    "jsonschema>=4.18.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
+]
+
+[project.scripts]
+wire-pid-kg = "skills.wire_pid_kg.scripts.cli:main"

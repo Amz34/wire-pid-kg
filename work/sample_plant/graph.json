@@ -1,0 +1,120 @@
+{
+  "plant_name": "AONE-BioChemical-Unit-01",
+  "version": "1.0.0",
+  "equipment": [
+    {
+      "id": "TK-101",
+      "name": "Feed Surge Tank",
+      "equipment_type": "tank",
+      "dexpi_class": "DEXPI.Vessel",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-101A",
+      "name": "Centrifugal Feed Pump",
+      "equipment_type": "pump",
+      "dexpi_class": "DEXPI.CentrifugalPump",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "id": "R-201",
+      "name": "Continuous Stirred-Tank Reactor",
+      "equipment_type": "reactor",
+      "dexpi_class": "DEXPI.Reactor",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "id": "C-301",
+      "name": "Depropanizer Stripping Column",
+      "equipment_type": "column",
+      "dexpi_class": "DEXPI.DistillationColumn",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    }
+  ],
+  "instruments": [
+    {
+      "tag": "FT-101",
+      "measured_variable": "Flow Rate",
+      "function": "Transmitter",
+      "loop_id": "Loop-101",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "tag": "FIC-101",
+      "measured_variable": "Flow Rate",
+      "function": "Indicator Controller",
+      "loop_id": "Loop-101",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "tag": "PT-201",
+      "measured_variable": "Pressure",
+      "function": "Transmitter",
+      "loop_id": "Loop-201",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    },
+    {
+      "tag": "TC-201",
+      "measured_variable": "Temperature",
+      "function": "Controller",
+      "loop_id": "Loop-201",
+      "sheet_ref": "Sheet-01",
+      "confidence": 1.0
+    }
+  ],
+  "valves": [
+    {
+      "id": "FCV-101",
+      "valve_type": "control_valve",
+      "fail_state": "FC",
+      "sheet_ref": "Sheet-01"
+    },
+    {
+      "id": "XV-201",
+      "valve_type": "isolation_valve",
+      "fail_state": "FO",
+      "sheet_ref": "Sheet-01"
+    }
+  ],
+  "connections": [
+    {
+      "source": "TK-101",
+      "target": "P-101A",
+      "edge_type": "suction_line",
+      "line_spec": "6-inch-CS",
+      "flow_direction": "forward",
+      "sheet_ref": "Sheet-01"
+    },
+    {
+      "source": "P-101A",
+      "target": "FCV-101",
+      "edge_type": "discharge_line",
+      "line_spec": "4-inch-CS",
+      "flow_direction": "forward",
+      "sheet_ref": "Sheet-01"
+    },
+    {
+      "source": "FCV-101",
+      "target": "R-201",
+      "edge_type": "reactor_feed",
+      "line_spec": "4-inch-CS",
+      "flow_direction": "forward",
+      "sheet_ref": "Sheet-01"
+    },
+    {
+      "source": "R-201",
+      "target": "C-301",
+      "edge_type": "stripper_feed",
+      "line_spec": "4-inch-SS",
+      "flow_direction": "forward",
+      "sheet_ref": "Sheet-01"
+    }
+  ]
+}
