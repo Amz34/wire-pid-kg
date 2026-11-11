@@ -10,6 +10,15 @@ Turn P&ID drawings into a process knowledge graph that an LLM can reason over.
 
 The output is meant to be one layer of an industrial manufacturing **context layer**. An LLM application can query it to answer questions such as "what feeds this clarifier?", "which transmitters sit downstream of P-101?" or "what does FIC-0502 manipulate?" directly from the drawings themselves.
 
+## Demo Walkthrough
+
+<p align="center">
+  <img src="docs/demo_walkthrough.gif" width="460" alt="P&ID to Knowledge Graph Demo" />
+</p>
+<p align="center">
+  <em>Watch the full high-resolution demo video: <a href="docs/demo_walkthrough.mp4">docs/demo_walkthrough.mp4</a></em>
+</p>
+
 ## Quick start
 
 No programming is needed. You need [Claude Code](https://code.claude.com/docs/en/overview) (the desktop app or the terminal version) and [Python](https://www.python.org/downloads/) 3.10 or newer. Python 3.12 is the best choice: on 3.13 and later the skill still works, but without the text-recognition (OCR) cross-check and automatic page orientation.
