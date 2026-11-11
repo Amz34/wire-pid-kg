@@ -1,95 +1,134 @@
-# Wire-PID-KG: Wire-Native P&ID to Process Knowledge Graph
+# P&ID to Knowledge Graph
 
-[![Engine: Wire--Native](https://img.shields.io/badge/Engine-Wire--Native-00e5ff.svg)](https://github.com/Amz34)
-[![Standard: ISA--5.1](https://img.shields.io/badge/Standard-ISA--5.1-f59e0b.svg)](https://github.com/Amz34)
-[![Storage: DuckDB](https://img.shields.io/badge/Store-DuckDB-FFF000.svg)](https://github.com/Amz34)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+Turn P&ID drawings into a process knowledge graph that an LLM can reason over.
 
-An enterprise-grade, wire-native intelligence engine and agentic skill that turns Piping & Instrumentation Diagrams (P&IDs) and Process Flow Diagrams (PFDs)—both digital vector CAD and scanned drawings—into a structured, queryable process knowledge graph.
+`wire-pid-kg` reads piping and instrumentation diagrams (P&IDs) and PFDs from PDF and builds a knowledge graph of the process. The PDFs can be digital (exported from CAD) or scanned. The graph captures:
 
-The graph captures:
-- **Process Flow:** Upstream and downstream connectivity across tanks, pumps, reactors, heat exchangers, distillation columns, and pipe segments.
-- **Measurement:** Transmitters, indicators, and sensors positioned accurately within process streams.
-- **Control Loops:** Complete loops traced from sensor element through controller to final actuator or drive, adhering to ISA-5.1 standards.
+- **Process flow:** what is upstream and downstream of every tank, pump, valve and pipe segment.
+- **Measurement:** which instrument measures which variable, and exactly where it sits in the flow.
+- **Control:** control loops from sensor through controller to final element, including I/P relays, cascades, interlocks and VFD drives.
 
----
+The output is meant to be one layer of an industrial manufacturing **context layer**. An LLM application can query it to answer questions such as "what feeds this clarifier?", "which transmitters sit downstream of P-101?" or "what does FIC-0502 manipulate?" directly from the drawings themselves.
 
-## Architecture Overview
+## Quick start
 
-```
-wire-pid-kg/
-├── .claude-plugin/
-│   └── plugin.json
-├── docs/
-│   └── how-it-works.svg
-├── skills/
-│   └── wire-pid-kg/
-│       ├── SKILL.md
-│       ├── references/
-│       │   ├── extraction_procedure.md
-│       │   ├── isa_5_1.md
-│       │   ├── ontology.md
-│       │   ├── symbol_guide.md
-│       │   └── schema/
-│       │       ├── extraction.schema.json
-│       │       └── graph.schema.json
-│       └── scripts/
-│           ├── requirements.txt
-│           ├── probe_pdf.py
-│           ├── render_pages.py
-│           ├── make_hints.py
-│           ├── build_kg.py
-│           ├── kg_query.py
-│           ├── export.py
-│           ├── eval_kg.py
-│           ├── crop.py
-│           └── pidkg/
-│               ├── build.py
-│               ├── isa.py
-│               ├── loops.py
-│               ├── models.py
-│               ├── ocr.py
-│               ├── ontology.py
-│               ├── pdf.py
-│               ├── qa.py
-│               ├── store.py
-│               └── summary.py
-└── tests/
-    ├── conftest.py
-    └── fixtures/
-```
+No programming is needed. You need [Claude Code](https://code.claude.com/docs/en/overview) (the desktop app or the terminal version) and [Python](https://www.python.org/downloads/) 3.10 or newer. Python 3.12 is the best choice: on 3.13 and later the skill still works, but without the text-recognition (OCR) cross-check and automatic page orientation.
 
----
+### 1. Download the skill
+Clone or download this repository.
 
-## Workflow Pipeline
+### 2. Install it
+In the folder, open `skills` and copy the `wire-pid-kg` folder into your personal skills directory:
 
-1. **Page Classification (`probe_pdf.py`)**: Identifies CAD vector text vs. raster scans and establishes extraction paths.
-2. **Page Rendering (`render_pages.py`)**: Generates high-resolution coordinate tiles for agent inspection.
-3. **Orientation & Hints (`make_hints.py`)**: Gathers OCR bounding box hints for tag validation.
-4. **Agent Inspection (`SKILL.md`)**: Inspects drawings and writes structured JSON extractions per sheet.
-5. **Graph Assembly (`build_kg.py`)**: Stitches line segments, connects off-page links, and assembles control loops.
-6. **QA Audit (`qa.py`)**: Validates against floating equipment, open loops, and unverified tags.
-7. **Analytical Querying (`kg_query.py`)**: Queries the embedded DuckDB store for upstream and downstream process tracing.
+| System | Skills folder |
+|---|---|
+| Windows | `C:\Users\<your user name>\.claude\skills\` |
+| macOS / Linux | `~/.claude/skills/` |
 
----
+If the `skills` folder doesn't exist yet, create it.
+
+### 3. Add your P&IDs
+Make a new folder for the project and put your P&ID PDF in it. Open that folder in your coding environment.
+
+### 4. Convert them
+For example:
+
+> Convert `plant_drawings.pdf` into a knowledge graph. The P&IDs are on pages 47–60.
+
+The skill loads automatically; there is no need to name it. The first time, it installs the Python packages it needs. It reads every sheet in detail, confirms revisions if multiple versions exist, and reports what it found and what remains uncertain.
+
+### 5. Check the graph by asking questions
+The best test is to ask about things you can verify on the drawings:
+
+> Name all the equipment upstream of the clarifier.
+>
+> What sensor measures the flow into TK-101, and where exactly is it?
+>
+> What does FIC-0502 control, and what valve does it move?
+
+The results are saved in `work/<plant name>/kg/` inside your project folder:
+- `summary.md` is a readable overview of the whole plant.
+- `qa_report.md` lists anything that could not be confirmed.
+- `graph.json` contains the full graph.
+- `graph.duckdb` is an embedded SQL database for recursive graph traversal.
+
+## How it works
+
+The agent reads the drawings; Python scripts handle deterministic validation and graph generation:
+
+### 1. Preparing the pages
+A script inspects every page and determines its drawing category:
+
+| Page type | How to recognise it | What the engine does |
+|---|---|---|
+| **Digital, searchable text** | Exported from CAD; text can be selected in a PDF viewer | Renders the page straight from vector data so lines stay sharp at any zoom. Vector text cross-checks extracted tags. |
+| **Digital, outlined text** | Drawn as vector shapes; text cannot be highlighted | High-resolution vector rendering with OCR text recognition for tag cross-checks. |
+| **Scanned** | Raster image of a paper drawing | Enhances contrast and resolution up to 2.5× so small text stands out. Runs OCR cross-checks. |
+| **Scanned with OCR text** | Raster drawing with searchable text layer | Uses added text layer as hints while prioritizing verified visual elements. |
+
+Then, for every page:
+- **Orientation:** Ensures text is upright.
+- **Resolution:** Computed from text size so small tags stay legible.
+- **Tiles:** Slices large drawings into overlapping inspection tiles while skipping blank margins.
+
+### 2. Reading each sheet
+- The sheet is reviewed as a whole, then every tile up close.
+- Captures equipment, pipe runs, valves, instruments, signal lines, and off-page connectors.
+- Records bounding coordinates and confidence scores. Unreadable items are flagged, never guessed.
+
+### 3. Building and checking the knowledge graph
+- **Process flow:** Pipes are split into segments between in-line valves and fittings; off-page connectors link sheets to trace full plant flows.
+- **Measurement:** Instruments attach to specific pipe segments or vessels.
+- **Control:** Loops assemble from ISA-5.1 tags and signal lines (sensor $\to$ controller $\to$ valve/drive).
+- **Integrity check:** A validation report flags missing partner connectors, unlocated transmitters, or unmatched OCR tags.
+
+### 4. Querying and export
+- `summary.md`: Structured plant overview for LLM context.
+- `graph.json`: Machine-readable graph conforming to `graph.schema.json`.
+- `graph.duckdb`: Embedded SQL store for fast recursive upstream and downstream queries.
+- Export options include GraphML (Gephi / yEd / NetworkX) and Neo4j Cypher scripts.
 
 ## Outputs
 
-- `graph.json`: Full validated JSON graph conforming to `graph.schema.json`.
-- `graph.duckdb`: Analytical SQL database for recursive graph searches.
-- `summary.md`: Clean Markdown context layer for LLM reasoning.
-- `qa_report.md`: Discrepancy report detailing unresolved tags or unlinked connectors.
+| File | Description |
+|---|---|
+| `summary.md` | Readable plant overview: equipment-level flow, instruments, control loops, and off-page connectors. Ideal for LLM context. |
+| `qa_report.md` | Integrity audit detailing errors, warnings, and unconfirmed tags. |
+| `graph.json` | The complete graph conforming to `references/schema/graph.schema.json`. |
+| `graph.duckdb` | High-performance [DuckDB](https://duckdb.org) file for SQL path traversal. |
 
----
+Equipment and instruments map directly to [DEXPI](https://dexpi.org) classes for standard P&ID data interchange.
 
-## Automated Verification
+## Repository layout
 
-```bash
-pytest
+```
+skills/wire-pid-kg/
+  SKILL.md                    Inspection and extraction workflow
+  references/                 Extraction guidelines, ISA-5.1 reference, symbol guide, ontology, JSON schemas
+  scripts/                    probe, render, hints, build, query, export, eval, crop
+  scripts/pidkg/              Library: models, ISA parsing, builder, loops, QA, storage, summary
+docs/                         Architecture diagrams
+tests/                        Pytest test suite with synthetic drawing sets
 ```
 
----
+## Limitations
+
+- **Extraction quality depends on legibility:** Low-resolution scans can obscure fine tag text; unreadable items are recorded as unreadable rather than guessed.
+- **Control logic:** Captures loops shown on the P&ID (ISA bubbles and signal lines); external logic living purely in narrative control descriptions is not represented.
+- **Flow direction:** Inferred from equipment conventions and flow arrows; ambiguous runs are explicitly flagged as inferred.
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest
+python skills/wire-pid-kg/scripts/build_kg.py --write-schemas
+```
+
+## Disclaimer
+
+The graph is machine-extracted from engineering drawings. It must be reviewed by a qualified engineer before use in design, operations, management of change, or process safety studies (HAZOP/LOPA).
 
 ## License
 
-MIT © [Amz34](https://github.com/Amz34).
+[MIT](LICENSE).
