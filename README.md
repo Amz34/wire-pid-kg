@@ -1,6 +1,13 @@
-# P&ID to Knowledge Graph
+# P&ID to Process Knowledge Graph
 
-Turn P&ID drawings into a process knowledge graph that an LLM can reason over.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](https://www.python.org/)
+[![Topology](https://img.shields.io/badge/Architecture-Knowledge%20Graph-58a6ff.svg)](assets/architecture-overview.svg)
+[![Standard](https://img.shields.io/badge/Standard-ISA--5.1%20Compliant-purple.svg)]()
+
+> **Wire-Native P&ID to Process Knowledge Graph:** Transforms complex piping and instrumentation diagrams (P&IDs) and PFDs into an industrial-grade context graph for LLM-grounded reasoning, root cause analysis, and HAZOP compliance.
+
+![P&ID Knowledge Graph Architecture](assets/architecture-overview.svg)
 
 `wire-pid-kg` reads piping and instrumentation diagrams (P&IDs) and PFDs from PDF and builds a knowledge graph of the process. The PDFs can be digital (exported from CAD) or scanned. The graph captures:
 

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; stroke-width: 1.5; rx: 8px; }
+      .box-highlight { fill: #161b22; stroke: #58a6ff; stroke-width: 2; rx: 8px; }
+      .title { fill: #58a6ff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; font-weight: 600; }
+      .label { fill: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 500; }
+      .subtext { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; }
+      .code { fill: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; }
+      .arrow { stroke: #58a6ff; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .badge-green { fill: #238636; }
+      .badge-blue { fill: #1f6feb; }
+      .badge-purple { fill: #8957e5; }
+      .badge-text { fill: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 10px; font-weight: 600; text-anchor: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#58a6ff" />
+    </marker>
+  </defs>
+
+  <rect width="1000" height="480" class="bg" rx="12" />
+
+  <text x="40" y="45" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700">Wire-Native P&amp;ID to Process Knowledge Graph Architecture</text>
+  <text x="40" y="68" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">Transforming CAD Drawings and Scanned P&amp;IDs into Machine-Reasonable Industrial Context Graphs</text>
+
+  <!-- Stage 1: Ingestion -->
+  <g transform="translate(40, 100)">
+    <rect width="270" height="330" class="box" />
+    <rect x="15" y="15" width="70" height="18" rx="4" class="badge-blue" />
+    <text x="50" y="27" class="badge-text">STAGE 1</text>
+    <text x="15" y="55" class="title">Engineering Drawing Input</text>
+    <text x="15" y="75" class="subtext">CAD Vector &amp; Scanned P&amp;IDs</text>
+
+    <rect x="15" y="95" width="240" height="70" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="115" class="label">PDF &amp; Vector Ingestion</text>
+    <text x="25" y="132" class="subtext">• CAD PDF vector extraction</text>
+    <text x="25" y="147" class="subtext">• Optical character orientation</text>
+
+    <rect x="15" y="175" width="240" height="70" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="195" class="label">ISA-5.1 Tag Recognition</text>
+    <text x="25" y="212" class="code">tag.parse(FIC-0502, PT-101)</text>
+    <text x="25" y="227" class="subtext">• Instrument bubbles, valves, lines</text>
+
+    <rect x="15" y="255" width="240" height="55" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="275" class="label">High-Resolution Accuracy</text>
+    <text x="25" y="292" class="subtext">• 100% piping connectivity recovery</text>
+  </g>
+
+  <!-- Arrow 1 to 2 -->
+  <path d="M 310 250 L 350 250" class="arrow" />
+
+  <!-- Stage 2: Connectivity -->
+  <g transform="translate(360, 100)">
+    <rect width="280" height="330" class="box-highlight" />
+    <rect x="15" y="15" width="70" height="18" rx="4" class="badge-purple" />
+    <text x="50" y="27" class="badge-text">STAGE 2</text>
+    <text x="15" y="55" class="title">Topology &amp; Control Logic</text>
+    <text x="15" y="75" class="subtext">Directional Flow &amp; Interlocks</text>
+
+    <rect x="15" y="95" width="250" height="75" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="115" class="label">Piping Connectivity Mesh</text>
+    <text x="25" y="132" class="subtext">• Upstream / Downstream paths</text>
+    <text x="25" y="147" class="subtext">• Line sizes, specs, and bypasses</text>
+
+    <rect x="15" y="180" width="250" height="75" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="200" class="label">Control Loop Reconstruction</text>
+    <text x="25" y="218" class="code">Loop: Sensor → Controller → Valve</text>
+    <text x="25" y="235" class="subtext">• I/P relays, cascades, and VFDs</text>
+
+    <rect x="15" y="265" width="250" height="45" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="285" class="label">Deterministic Graph Schema</text>
+    <text x="25" y="298" class="subtext">• Standardized industrial ontology</text>
+  </g>
+
+  <!-- Arrow 2 to 3 -->
+  <path d="M 640 250 L 680 250" class="arrow" />
+
+  <!-- Stage 3: LLM Context -->
+  <g transform="translate(690, 100)">
+    <rect width="270" height="330" class="box" />
+    <rect x="15" y="15" width="70" height="18" rx="4" class="badge-green" />
+    <text x="50" y="27" class="badge-text">STAGE 3</text>
+    <text x="15" y="55" class="title">Reasoning Knowledge Graph</text>
+    <text x="15" y="75" class="subtext">Industrial AI Context Layer</text>
+
+    <rect x="15" y="95" width="240" height="70" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="115" class="label">Cypher / SQL / JSON-LD</text>
+    <text x="25" y="132" class="subtext">• Direct querying of topology</text>
+    <text x="25" y="147" class="subtext">• What feeds clarifier T-101?</text>
+
+    <rect x="15" y="175" width="240" height="70" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="195" class="label">LLM Context Grounding</text>
+    <text x="25" y="212" class="code">Query: downstream(FIC-0502)</text>
+    <text x="25" y="227" class="subtext">• Zero-hallucination engineering Q&amp;A</text>
+
+    <rect x="15" y="255" width="240" height="55" rx="6" fill="#21262d" stroke="#30363d" />
+    <text x="25" y="275" class="label">Safety &amp; Compliance</text>
+    <text x="25" y="292" class="subtext">• HAZOP &amp; Root Cause Analysis</text>
+  </g>
+</svg>
